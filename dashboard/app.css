@@ -82,11 +82,18 @@ td.iv i{position:absolute;left:0;bottom:0;height:2px;background:var(--acc);opaci
 .chips span{border:1px solid var(--acc);color:var(--acc);font:12px var(--mono);padding:3px 9px}
 @media (max-width:700px){.brand h1{font-size:20px}.filters label,input[type=search]{width:100%}output{margin:0}.kv{grid-template-columns:1fr}}
 
-.excl{margin-top:30px}
+.excl{margin-top:30px;padding:16px 16px 18px;border:1px solid var(--line);background:#080f1e;scroll-margin-top:12px}
 .excl[hidden]{display:none}
 .excl h2{margin:0 0 4px;font:600 15px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.06em;border-left:3px solid var(--dim);padding-left:10px}
 .xnote{margin:0 0 10px;color:var(--dim);font-size:13px;max-width:110ch}
 #xtbl{min-width:760px}
+#ctbl{min-width:560px}
+#ctbl thead th,#xtbl thead th{padding:9px 10px;position:static}
+#ctbl td:first-child{color:var(--ink)}
+#ctbl tbody tr{cursor:default}
+#ctbl td.n{color:var(--ink)}
+#ctbl td.g{color:var(--dim)}
+#ctbl td.c{color:var(--acc)}
 #xtbl thead th{padding:9px 10px;position:static}
 #xtbl td{color:var(--dim)}
 #xtbl td:first-child{color:var(--ink)}

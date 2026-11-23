@@ -129,6 +129,14 @@ export interface ExcludedRow {
   reason: string;
 }
 
+/** One comparables row: a category with token-bearing peers and the multiple the model used for it. */
+export interface Comparable {
+  category: string;
+  peers: number;
+  multiple: number;
+  source: 'category' | 'global';
+}
+
 export interface RadarData {
   as_of: string;
   source: string;
@@ -145,6 +153,7 @@ export interface RadarData {
   multiples: Record<string, { value: number; peers: number; source: 'category' | 'global' }>;
   rows: RadarRow[];
   excluded: ExcludedRow[];
+  comparables: Comparable[];
 }
 
 export class SnapshotError extends Error {
@@ -519,6 +528,10 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     multiples: mult,
     rows: board.map(radarRow),
     excluded,
+    comparables: [...multiples.byCategory]
+      .filter(([, v]) => v.peers > 0)
+      .map(([k, v]): Comparable => ({ category: k === '' ? 'Uncategorised' : k, peers: v.peers, multiple: v.value, source: v.source }))
+      .sort((a, b) => b.peers - a.peers || byText(a.category, b.category)),
   };
   return { board, radar };
 }

@@ -117,6 +117,13 @@
     return out;
   }
 
+  var cbody = document.querySelector('#ctbl tbody');
+  $('cnote').textContent = 'Each category multiple is the median market cap / TVL of the ' + D.token_peers + ' token-bearing protocols in this snapshot, taken per category. A category with fewer than ' + M.min_peers + ' peers falls back to the global median (' + D.global_multiple + '). All figures are clamped to ' + M.multiple_min + '-' + M.multiple_max + '. Categories with no token-bearing peer at all use the global median too.';
+  D.comparables.forEach(function (c) {
+    var own = c.source === 'category';
+    cbody.appendChild(add(el('tr'), el('td', 0, c.category), el('td', 'n', String(c.peers)), el('td', 'n', c.multiple.toFixed(4)),
+      el('td', own ? 'c' : 'g', own ? 'own category median' : 'global fallback (under ' + M.min_peers + ' peers)')));
+  });
   var xbody = document.querySelector('#xtbl tbody');
   $('xnote').textContent = D.excluded_size + ' tokenless protocols are wrapped, staked, bridged or exchange products of a token that already trades, or versioned deployments of an existing protocol (a name ending in V2, 2.0 and the like). Their launch would mostly price the parent asset or repeat an existing one, so they get no rank, no implied value and no farm plan. Search, category and chain filters apply here too.';
   function renderExcluded() {
