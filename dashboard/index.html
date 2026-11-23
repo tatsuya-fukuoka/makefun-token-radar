@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar: tokenless protocols ranked by implied launch value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+<header class="top">
+  <div class="brand">
+    <svg class="sweep" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><circle cx="32" cy="32" r="20"/><circle cx="32" cy="32" r="10"/><path d="M32 32 L32 2"/><circle class="blip" cx="45" cy="20" r="2.5"/></svg>
+    <div><h1>Token Radar</h1><p class="sub" id="asof"></p></div>
+  </div>
+  <dl class="stats" id="stats"></dl>
+  <p class="model" id="model"></p>
+</header>
+<main id="board" tabindex="-1" aria-busy="true">
+  <form class="filters" id="filters" role="search" aria-label="Filter the board" onsubmit="return false">
+    <label>Search<input type="search" id="q" placeholder="name, slug, chain" autocomplete="off"></label>
+    <label>Category<select id="cat"></select></label>
+    <label>Chain<select id="chain"></select></label>
+    <label class="chk"><input type="checkbox" id="watch"> Watchlist only</label>
+    <label class="chk"><input type="checkbox" id="showx" checked> Show excluded products</label>
+    <button type="button" id="reset">Reset</button>
+    <output id="count" aria-live="polite"></output>
+  </form>
+  <div class="wrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+  <p class="foot" id="foot"></p>
+  <section class="excl" id="excl" aria-labelledby="xt">
+    <h2 id="xt">Not launch candidates: products of tokens that already trade</h2>
+    <p class="xnote" id="xnote"></p>
+    <div class="wrap"><table id="xtbl"><thead><tr><th scope="col">Protocol</th><th scope="col">Category</th><th scope="col">Chains</th><th scope="col" class="n">TVL</th><th scope="col">Why it is excluded</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</main>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pt" hidden></aside>
+<noscript><p>The radar needs JavaScript and ../data.js.</p></noscript>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
