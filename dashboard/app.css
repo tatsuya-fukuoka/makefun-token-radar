@@ -5,21 +5,25 @@ body{margin:0;background:radial-gradient(1200px 500px at 85% -10%,#12294a 0,tran
 .skip{position:absolute;left:-999px;top:0;background:var(--acc);color:#04120a;padding:6px 10px;z-index:30}
 .skip:focus{left:8px;top:8px}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.top{padding:22px clamp(14px,3vw,36px) 10px;border-bottom:1px solid var(--line);display:grid;gap:14px}
+.top{padding:12px clamp(14px,3vw,36px) 8px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
 .brand{display:flex;align-items:center;gap:14px}
-.brand h1{margin:0;font:700 26px/1.1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--acc);text-shadow:0 0 18px #6dffb055}
-.sub{margin:2px 0 0;color:var(--dim);font:12px var(--mono)}
-.sweep{width:54px;height:54px;flex:none;fill:none;stroke:var(--acc);stroke-width:1;opacity:.85}
+.brand h1{margin:0;font:700 22px/1.1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--acc);text-shadow:0 0 18px #6dffb055}
+.sub{margin:1px 0 0;color:var(--dim);font:12px var(--mono)}
+.sweep{width:40px;height:40px;flex:none;fill:none;stroke:var(--acc);stroke-width:1;opacity:.85}
 .sweep path{stroke-width:1.6;transform-origin:32px 32px;animation:spin 6s linear infinite}
 .sweep .blip{fill:var(--acc);stroke:none;animation:blip 6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes blip{0%,20%{opacity:1}60%,100%{opacity:.15}}
 @media (prefers-reduced-motion:reduce){.sweep path,.sweep .blip{animation:none}}
-.stats{display:flex;flex-wrap:wrap;gap:10px;margin:0}
-.stats div{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--acc);padding:8px 14px;min-width:130px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.stats div{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--acc);padding:4px 12px;min-width:104px}
 .stats dt{font:11px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
-.stats dd{margin:0;font:600 20px var(--mono);color:var(--ink)}
-.model{margin:0;max-width:120ch;color:var(--dim);font-size:13px}
+.stats dd{margin:0;font:600 17px var(--mono);color:var(--ink)}
+.model{margin:0;flex:1 0 100%;color:var(--dim);font-size:12.5px;line-height:1.45}
+.model details{display:inline}
+.model summary{display:inline;cursor:pointer;color:var(--acc);font:12px var(--mono)}
+.model details[open] summary{display:block;margin-top:4px}
+.model details p{margin:6px 0 2px;max-width:130ch}
 .model b{color:var(--ink);font-weight:600}
 .model code{font:12px var(--mono);color:var(--acc)}
 main{padding:14px clamp(14px,3vw,36px) 40px;outline:0}

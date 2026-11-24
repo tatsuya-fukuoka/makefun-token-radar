@@ -103,6 +103,12 @@ export interface BoardRow {
   farm_steps: string[];
 }
 
+/** The unrounded factors behind a row, for the dashboard's worked equation only (board.json keeps its 4-decimal fields). */
+export interface ExactFactors {
+  momentum: number;
+  age_factor: number;
+}
+
 export interface RadarRow {
   rank: number;
   slug: string;
@@ -116,6 +122,7 @@ export interface RadarRow {
   implied_value_usd: number;
   implied_to_tvl: number;
   model: RowModel;
+  exact: ExactFactors;
   farm_steps: string[];
 }
 
@@ -433,7 +440,7 @@ export function farmSteps(p: SnapshotProtocol, age: number | null): string[] {
 
 // ---------------------------------------------------------------- the board
 
-export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): { board: BoardRow[]; excluded: ExcludedRow[]; multiples: Multiples } {
+export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): { board: BoardRow[]; excluded: ExcludedRow[]; multiples: Multiples; exact: ExactFactors[] } {
   const multiples = learnMultiples(snapshot.protocols, model);
   const watch = new Set(snapshot.watchlist);
   const tokenless = snapshot.protocols.filter(isPreToken);
@@ -486,10 +493,11 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): {
     },
     farm_steps: farmSteps(s.p, s.age),
   }));
-  return { board, excluded, multiples };
+  const exact = scored.map((s): ExactFactors => ({ momentum: s.momentum, age_factor: s.ageFactor }));
+  return { board, excluded, multiples, exact };
 }
 
-export function radarRow(row: BoardRow): RadarRow {
+export function radarRow(row: BoardRow, exact: ExactFactors): RadarRow {
   return {
     rank: row.rank,
     slug: row.slug,
@@ -503,12 +511,13 @@ export function radarRow(row: BoardRow): RadarRow {
     implied_value_usd: row.implied_value_usd,
     implied_to_tvl: row.implied_to_tvl,
     model: row.model,
+    exact,
     farm_steps: row.farm_steps,
   };
 }
 
 export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): { board: BoardRow[]; radar: RadarData } {
-  const { board, excluded, multiples } = buildBoard(snapshot, model);
+  const { board, excluded, multiples, exact } = buildBoard(snapshot, model);
   const slugs = new Set(board.map((r) => r.slug));
   const mult: RadarData['multiples'] = {};
   for (const [k, v] of multiples.byCategory) mult[k === '' ? 'Uncategorised' : k] = v;
@@ -526,7 +535,7 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     token_peers: multiples.peers,
     total_tvl_usd: board.reduce((a, r) => a + r.tvl_usd, 0),
     multiples: mult,
-    rows: board.map(radarRow),
+    rows: board.map((r, i) => radarRow(r, exact[i]!)),
     excluded,
     comparables: [...multiples.byCategory]
       .filter(([, v]) => v.peers > 0)

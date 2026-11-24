@@ -19,6 +19,7 @@
   function exact(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
   function pct(n) { return n == null ? 'n/a' : (n > 0 ? '+' : '') + n.toFixed(2) + '%'; }
   function yrs(r) { return r.model.years_tokenless == null ? null : r.model.years_tokenless; }
+  function x10(n) { return n.toFixed(10); }
   function x4(n) { return n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '.0'); }
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -39,15 +40,13 @@
   ];
   stats.forEach(function (s) { add($('stats'), add(el('div'), el('dt', 0, s[0]), el('dd', 0, s[1]))); });
   var mp = $('model');
-  [['Value model. ', 'b'],
-   ['Every protocol in the snapshot with no token (no CoinGecko id, no symbol) gets ', 0],
-   ['implied value = round(TVL x category multiple x momentum x age factor)', 'code'],
-   ['. The category multiple is the median market cap / TVL of the token-bearing protocols in the same category in this snapshot (global median ' + D.global_multiple + ' when a category has fewer than ' + M.min_peers + ' peers, clamped to ' + M.multiple_min + '-' + M.multiple_max + '). Momentum is 1 + 7-day TVL change (clamped ' + M.growth_floor + '% to +' + M.growth_cap + '%) x ' + M.growth_weight + ', held within ' + M.momentum_min + '-' + M.momentum_max + '. Age factor rises from ' + M.age_min + ' to ' + (M.age_min + M.age_range).toFixed(2) + ' with years tracked and still tokenless (cap ' + M.age_cap_years + 'y; unknown = 1). Wrapped, staked, bridged and exchange products of a token that already trades (WBTC, bridges, liquid staking, exchanges) and versioned deployments of an existing protocol (names ending in V2, 2.0 and the like) are not launch candidates, so they are excluded from the ranking and listed separately below with the reason. Tokens that already trade are not ranked either: they are the peers the multiples come from.', 0]
-  ].forEach(function (p) {
-    if (p[1] === 'b') mp.appendChild(el('b', 0, p[0]));
-    else if (p[1] === 'code') mp.appendChild(el('code', 0, p[0]));
-    else mp.appendChild(document.createTextNode(p[0]));
-  });
+  mp.appendChild(el('b', 0, 'Value model. '));
+  mp.appendChild(el('code', 0, 'implied value = round(TVL x category multiple x momentum x age factor)'));
+  mp.appendChild(document.createTextNode('. Multiples are medians of mcap / TVL from the snapshot\'s own token-bearing peers (see Comparables); wrapped, staked, bridged, exchange and versioned products are excluded, listed below. '));
+  var det = el('details');
+  det.appendChild(el('summary', 0, 'Full model statement'));
+  det.appendChild(el('p', 0, 'Every protocol in the snapshot with no token (no CoinGecko id, no symbol) gets implied value = round(TVL x category multiple x momentum x age factor). The category multiple is the median market cap / TVL of the token-bearing protocols in the same category in this snapshot (global median ' + D.global_multiple + ' when a category has fewer than ' + M.min_peers + ' peers, clamped to ' + M.multiple_min + '-' + M.multiple_max + '). Momentum is 1 + 7-day TVL change (clamped ' + M.growth_floor + '% to +' + M.growth_cap + '%) x ' + M.growth_weight + ', held within ' + M.momentum_min + '-' + M.momentum_max + '. Age factor rises from ' + M.age_min + ' to ' + (M.age_min + M.age_range).toFixed(2) + ' with years tracked and still tokenless (cap ' + M.age_cap_years + 'y; unknown = 1). Wrapped, staked, bridged and exchange products of a token that already trades (WBTC, bridges, liquid staking, exchanges) and versioned deployments of an existing protocol (names ending in V2, 2.0 and the like) are not launch candidates, so they are excluded from the ranking and listed separately below with the reason. Tokens that already trade are not ranked either: they are the peers the multiples come from.'));
+  mp.appendChild(det);
 
   // ---------- filters
   var cats = {}, chains = {};
@@ -183,7 +182,7 @@
     }
     var tv = 0, iv2 = 0, w = 0;
     list.forEach(function (r) { tv += r.tvl_usd; iv2 += r.implied_value_usd; if (r.on_watchlist) w++; });
-    $('count').textContent = list.length + ' of ' + rows.length + ' rows / ' + w + ' watchlist / TVL ' + money(tv) + ' / implied ' + money(iv2);
+    $('count').textContent = (state.watch ? w + ' of ' + D.watchlist_size + ' watchlist protocols' : list.length + ' of ' + rows.length + ' candidates (' + w + ' on the watchlist)') + ' / TVL ' + money(tv) + ' / implied ' + money(iv2);
     $('foot').textContent = 'Ranks are over all ' + D.board_size + ' launch candidates, so a filtered view keeps its global rank. Click a row for the model breakdown and the farm plan.';
     renderExcluded();
     board.setAttribute('aria-busy', 'false');
@@ -234,11 +233,11 @@
     function line(a, b, c, cls) { var tr = add(el('tr', cls || ''), el('td', 0, a), el('td', 0, b), el('td', 'n', c)); t.appendChild(tr); }
     line('TVL', exact(r.tvl_usd), exact(r.tvl_usd));
     line('Category multiple', src, 'x ' + x4(m.category_multiple));
-    line('Momentum', r.change_7d == null ? 'no 7d figure: neutral' : '1 + clamp(' + pct(r.change_7d) + ', ' + M.growth_floor + '..' + M.growth_cap + ')/100 x ' + M.growth_weight + ', within ' + M.momentum_min + '-' + M.momentum_max, 'x ' + x4(m.momentum));
-    line('Age factor', m.years_tokenless == null ? 'no listing date: neutral' : M.age_min + ' + ' + M.age_range + ' x min(' + m.years_tokenless.toFixed(2) + 'y, ' + M.age_cap_years + ')/' + M.age_cap_years, 'x ' + x4(m.age_factor));
+    line('Momentum', r.change_7d == null ? 'no 7d figure: neutral' : '1 + clamp(' + pct(r.change_7d) + ', ' + M.growth_floor + '..' + M.growth_cap + ')/100 x ' + M.growth_weight + ', within ' + M.momentum_min + '-' + M.momentum_max, 'x ' + x10(r.exact.momentum));
+    line('Age factor', m.years_tokenless == null ? 'no listing date: neutral' : M.age_min + ' + ' + M.age_range + ' x min(' + m.years_tokenless.toFixed(2) + 'y, ' + M.age_cap_years + ')/' + M.age_cap_years, 'x ' + x10(r.exact.age_factor));
     line('Implied value', 'rounded to whole dollars', exact(r.implied_value_usd), 'sum');
     panel.appendChild(t);
-    panel.appendChild(el('div', 'eq', exact(r.tvl_usd) + ' x ' + x4(m.category_multiple) + ' x ' + x4(m.momentum) + ' x ' + x4(m.age_factor) + '\n= ' + m.formula_value.toLocaleString('en-US') + '  ->  ' + exact(r.implied_value_usd) + '  (' + r.implied_to_tvl.toFixed(2) + 'x TVL)'));
+    panel.appendChild(el('div', 'eq', exact(r.tvl_usd) + ' x ' + x4(m.category_multiple) + ' x ' + x10(r.exact.momentum) + ' x ' + x10(r.exact.age_factor) + '\n= ' + m.formula_value.toLocaleString('en-US') + '  ->  ' + exact(r.implied_value_usd) + '  (' + r.implied_to_tvl.toFixed(2) + 'x TVL)'));
 
     panel.appendChild(el('h3', 0, 'Farm plan (' + r.farm_steps.length + ' steps)'));
     var last = 0, cap = null;
